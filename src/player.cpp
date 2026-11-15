@@ -225,6 +225,7 @@ void Player::filter(unsigned int sidNum, bool enable)
 
 void Player::initMixer(bool stereo)
 {
+/*
     int chips = m_chips.size();
     if (m_oplemu.locked())
         chips++;
@@ -244,14 +245,15 @@ void Player::initMixer(bool stereo)
     }
 
     m_simpleMixer.reset(new SimpleMixer(stereo, bufs.get(), installedSIDs(), m_oplemu.locked(), pans.empty() ? nullptr : pans.data()));
+*/
 }
 
 unsigned int Player::mix(short *buffer, unsigned int samples)
 {
-    return m_simpleMixer->doMix(buffer, samples);
+    return 0;// m_simpleMixer->doMix(buffer, samples);
 }
 
-void Player::buffers(short** buffers) const
+void Player::buffers(SampleI16** buffers) const
 {
     for (size_t i = 0; i < m_chips.size(); i++)
     {
@@ -646,6 +648,12 @@ int Player::getBufSize(unsigned int cycles)
 
     double size = static_cast<double>(m_cfg.frequency) / m_c64.getMainCpuSpeed() * cycles;
     return  static_cast<int>(std::ceil(size)) * m_simpleMixer->channels();
+}
+
+void Player::surround(bool enabled)
+{
+    for (sidemu* s : m_chips)
+        s->surround(enabled);
 }
 
 }

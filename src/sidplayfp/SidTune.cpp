@@ -50,15 +50,15 @@ const char* defaultFileNameExt[] =
 const char** SidTune::fileNameExtensions = defaultFileNameExt;
 
 SidTune::SidTune(const char* fileName, const char **fileNameExt, bool separatorIsSlash) :
-    SidTune(nullptr, fileName, fileNameExt, separatorIsSlash)
+    SidTune(nullptr, nullptr, fileName, fileNameExt, separatorIsSlash)
 {
 }
 
-SidTune::SidTune(LoaderFunc loader, const char* fileName, const char **fileNameExt, bool separatorIsSlash) :
+SidTune::SidTune(LoaderFunc loader, void* loaderData, const char* fileName, const char **fileNameExt, bool separatorIsSlash) :
     tune(nullptr)
 {
     setFileNameExtensions(fileNameExt);
-    load(loader, fileName, separatorIsSlash);
+    load(loader, loaderData, fileName, separatorIsSlash);
 }
 
 SidTune::SidTune(const uint_least8_t* oneFileFormatSidtune, uint_least32_t sidtuneLength) :
@@ -79,15 +79,15 @@ void SidTune::setFileNameExtensions(const char **fileNameExt)
 
 void SidTune::load(const char* fileName, bool separatorIsSlash)
 {
-    load(nullptr, fileName, separatorIsSlash);
+    load(nullptr, nullptr, fileName, separatorIsSlash);
 }
 
-void SidTune::load(LoaderFunc loader, const char* fileName, bool separatorIsSlash)
+void SidTune::load(LoaderFunc loader, void* loaderData, const char* fileName, bool separatorIsSlash)
 {
     try
     {
         delete tune;
-        tune = SidTuneBase::load(loader, fileName, fileNameExtensions, separatorIsSlash);
+        tune = SidTuneBase::load(loader, loaderData, fileName, fileNameExtensions, separatorIsSlash);
         m_status = true;
         m_statusString = MSG_NO_ERRORS;
     }

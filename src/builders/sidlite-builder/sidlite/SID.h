@@ -47,7 +47,7 @@ public:
     void reset();
     void write(int addr, int value);
     int read(int addr) const;
-    int clock(unsigned int cycles, short* buf);
+    int clock(unsigned int cycles, SampleI16* buf);
 
     void setChipModel(model_t model);
     void setRealSIDmode(bool mode);
@@ -55,6 +55,7 @@ public:
 
     int getLevel() const { return filter.getLevel(); }
 
+    void surround(bool enabled) { wavgen.isSurroundEnabled = enabled; }
 private:
     unsigned char regs[0x20] = {0};
 
@@ -66,7 +67,7 @@ private:
     short             SampleCycleCnt;
 
 private:
-    inline bool generateSample(unsigned int &cycles, short &output);
+    inline bool generateSample(unsigned int &cycles, SampleI16 &output);
 };
 
 }

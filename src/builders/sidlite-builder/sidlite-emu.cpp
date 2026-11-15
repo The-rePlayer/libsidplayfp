@@ -124,7 +124,7 @@ void SIDLiteEmu::sampling(float systemclock, float freq,
 
     // 20ms buffer
     const int buffersize = std::ceil((freq / 1000.f) * 20.f);
-    m_buffer = new short[buffersize];
+    m_buffer = new SampleI16[buffersize];
     m_status = true;
 }
 
@@ -152,4 +152,8 @@ void SIDLiteEmu::model(SidConfig::sid_model_t model, bool /*digiboost*/)
     m_status = true;
 }
 
+void SIDLiteEmu::surround(bool enabled)
+{
+    m_sid.surround(enabled);
+}
 }

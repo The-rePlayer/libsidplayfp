@@ -107,7 +107,7 @@ static bool isPsidV5(const uint_least8_t* buffer, size_t len)
 /// Minimum load address for real c64 only tunes
 constexpr uint_least16_t SIDTUNE_R64_MIN_LOAD_ADDR = 0x07e8;
 
-SidTuneBase* SidTuneBase::load(LoaderFunc loader, const char* fileName,
+SidTuneBase* SidTuneBase::load(LoaderFunc loader, void* loaderData, const char* fileName,
                  const char **fileNameExt, bool separatorIsSlash)
 {
     if (fileName == nullptr)
@@ -118,7 +118,7 @@ SidTuneBase* SidTuneBase::load(LoaderFunc loader, const char* fileName,
     if (strcmp(fileName, "-") == 0)
         return getFromStdIn();
 #endif
-    return getFromFiles(loader, fileName, fileNameExt, separatorIsSlash);
+    return getFromFiles(loader, loaderData, fileName, fileNameExt, separatorIsSlash);
 }
 
 unsigned int SidTuneBase::selectSong(unsigned int songNum)
@@ -172,8 +172,9 @@ void SidTuneBase::placeSidTuneInC64mem(sidmemory& mem)
     mem.fillRam(info->m_loadAddr, &m_cache[m_fileOffset], info->m_c64dataLen);
 }
 
-void SidTuneBase::loadFile(const char* fileName, buffer_t& bufferRef)
+void SidTuneBase::loadFile(const char* fileName, buffer_t& bufferRef, void* loaderData)
 {
+    (void)loaderData;
     std::ifstream inFile(fileName, std::ifstream::binary);
 
     if (!inFile.is_open())
@@ -362,14 +363,14 @@ void SidTuneBase::createNewFileName(std::string& destString,
 
 // Initializing the object based upon what we find in the specified file.
 
-SidTuneBase* SidTuneBase::getFromFiles(LoaderFunc loader, const char* fileName, const char **fileNameExtensions, bool separatorIsSlash)
+SidTuneBase* SidTuneBase::getFromFiles(LoaderFunc loader, void* loaderData, const char* fileName, const char **fileNameExtensions, bool separatorIsSlash)
 {
     buffer_t fileBuf1;
 
     if (loader == nullptr)
         loader = (LoaderFunc) loadFile;
 
-    loader(fileName, fileBuf1);
+    loader(fileName, fileBuf1, loaderData);
 
     // File loaded. Now check if it is in a valid single-file-format.
     std::unique_ptr<SidTuneBase> s(PSID::load(fileBuf1));
@@ -394,7 +395,7 @@ SidTuneBase* SidTuneBase::getFromFiles(LoaderFunc loader, const char* fileName, 
                     {
                         buffer_t fileBuf2;
 
-                        loader(fileName2.c_str(), fileBuf2);
+                        loader(fileName2.c_str(), fileBuf2, loaderData);
                         // Check if tunes in wrong order and therefore swap them here
                         if (stringutils::equal(fileNameExtensions[n], ".mus"))
                         {

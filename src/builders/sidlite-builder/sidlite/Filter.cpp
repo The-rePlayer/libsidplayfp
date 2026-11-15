@@ -61,7 +61,7 @@ constexpr int VUMETER_DIVSHIFTS = 4 - CRSID_WAVGEN_PRESHIFT;
 
 constexpr int Attenuation = ((SID_FULLVOLUME+26) * CRSID_PRESAT_ATT_NOM) / (CRSID_PRESAT_ATT_DENOM * CRSID_WAVGEN_PREDIV);
 
-int Filter::clock(int FilterInput, int NonFiltered)
+SampleI32 Filter::clock(SampleI32 FilterInput, SampleI32 NonFiltered)
 {
     enum SIDspecs { HIGHPASS_BITVAL=0x40, BANDPASS_BITVAL=0x20, LOWPASS_BITVAL=0x10 };
 
@@ -69,28 +69,31 @@ int Filter::clock(int FilterInput, int NonFiltered)
     unsigned char FilterSwitchReso = m_regs[0x17];
     unsigned char VolumeBand = m_regs[0x18];
 
-    int Cutoff = (m_regs[0x16] << 3) + (m_regs[0x15] & 7);
+    SampleI32 Cutoff = { (m_regs[0x16] << 3) + (m_regs[0x15] & 7), (m_regs[0x16] << 3) + (m_regs[0x15] & 7) };
     int Resonance = FilterSwitchReso >> 4;
     if (LIKELY(m_settings->is8580()))
     {
-        Cutoff = CutoffMul8580[Cutoff];
+        Cutoff = { CutoffMul8580[Cutoff.left], CutoffMul8580[Cutoff.right] };
         Resonance = Resonances8580[Resonance];
     }
     else
     { // 6581
         // MOSFET-VCR control-voltage calculation (resistance-modulation aka 6581 filter distortion) emulation
         Cutoff += (FilterInput*105)>>16;
-        if (Cutoff > SID_CUTOFF_MAX)
-            Cutoff = SID_CUTOFF_MAX;
-        else if (Cutoff < 0)
-            Cutoff = 0;
-        Cutoff = CutoffMul6581[Cutoff];
+        for (int i = 0; i < 2; ++i)
+        {
+            if (Cutoff[i] > SID_CUTOFF_MAX)
+                Cutoff[i] = SID_CUTOFF_MAX;
+            else if (Cutoff[i] < 0)
+                Cutoff[i] = 0;
+            Cutoff[i] = CutoffMul6581[Cutoff[i]];
+        }
         Resonance = Resonances6581[Resonance];
     }
 
-    int FilterOutput = 0;
+    SampleI32 FilterOutput = {};
     {
-        int Tmp = FilterInput + ((PrevBandPass * Resonance) / CRSID_FILTERTABLE_MAGNITUDE) + PrevLowPass;
+        SampleI32 Tmp = FilterInput + ((PrevBandPass * Resonance) / CRSID_FILTERTABLE_MAGNITUDE) + PrevLowPass;
         if (VolumeBand & HIGHPASS_BITVAL)
             FilterOutput -= Tmp;
         Tmp = PrevBandPass - ((Tmp * Cutoff) / CRSID_FILTERTABLE_MAGNITUDE);
@@ -129,12 +132,12 @@ int Filter::clock(int FilterInput, int NonFiltered)
     else
         MainVolume = VolumeBand & 0xF;
 
-    int Output = ((NonFiltered+FilterOutput) * MainVolume) + Digi;// / ((CHANNELS*VOLUME_MAX) + Attenuation);
+    SampleI32 Output = ((NonFiltered + FilterOutput) * MainVolume) + Digi;// / ((CHANNELS*VOLUME_MAX) + Attenuation);
 
     if (UNLIKELY(!++VUmeterUpdateCounter))
     {
         // average level (for VU-meter)
-        Level += ((std::abs(Output) >> VUMETER_DIVSHIFTS) - Level) / VUMETER_LOWPASS_DIV;
+        Level += ((std::abs(Output.left) >> VUMETER_DIVSHIFTS) - Level) / VUMETER_LOWPASS_DIV;
     }
     return Output / Attenuation; // master output
 }
@@ -148,7 +151,7 @@ Filter::Filter(settings *s, unsigned char *regs) :
 
 void Filter::reset()
 {
-    PrevLowPass = PrevBandPass = PrevVolume = 0;
+    PrevLowPass = PrevBandPass = {}; PrevVolume = 0;
     Level = 0;
     VUmeterUpdateCounter = 0;
 }

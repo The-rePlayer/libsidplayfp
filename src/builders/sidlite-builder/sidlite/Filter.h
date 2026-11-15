@@ -23,6 +23,8 @@
 #ifndef SIDLITE_FILTER_H
 #define SIDLITE_FILTER_H
 
+#include "../../residfp-builder/residfp/Sample.h"
+
 namespace SIDLite
 {
 
@@ -33,7 +35,7 @@ class Filter
 public:
     Filter(settings *s, unsigned char *regs);
     void reset();
-    int clock(int FilterInput, int NonFiltered);
+    SampleI32 clock(SampleI32 FilterInput, SampleI32 NonFiltered);
 
     inline int getLevel() const { return Level; }
 
@@ -47,8 +49,8 @@ private:
     unsigned short *CutoffMul6581;
 
     signed int     PrevVolume; // lowpass-filtered version of Volume-band register
-    int            PrevLowPass;
-    int            PrevBandPass;
+    SampleI32      PrevLowPass;
+    SampleI32      PrevBandPass;
     int            Level;      // filtered version, good for VU-meter display
     unsigned char  VUmeterUpdateCounter;
 };

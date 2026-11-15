@@ -57,7 +57,9 @@ private:  // -------------------------------------------------------------
 
 public:  // ----------------------------------------------------------------
 
-    typedef void (*LoaderFunc)(const char* fileName, std::vector<uint8_t>& bufferRef);
+    // rePlayer begin
+    typedef void (*LoaderFunc)(const char* fileName, std::vector<uint8_t>& bufferRef, void* loaderData);
+    // rePlayer end
 
     /**
      * Load a sidtune from a file.
@@ -90,8 +92,10 @@ public:  // ----------------------------------------------------------------
      * @param fileNameExt
      * @param separatorIsSlash
      */
-    SidTune(LoaderFunc loader, const char* fileName, const char **fileNameExt = 0,
+    // rePlayer begin
+    SidTune(LoaderFunc loader, void* loaderData, const char* fileName, const char **fileNameExt = 0,
             bool separatorIsSlash = false);
+    // rePlayer end
 
     /**
      * Load a single-file sidtune from a memory buffer.
@@ -130,7 +134,9 @@ public:  // ----------------------------------------------------------------
      * @param fileName
      * @param separatorIsSlash
      */
-    void load(LoaderFunc loader, const char* fileName, bool separatorIsSlash = false);
+    // rePlayer begin
+    void load(LoaderFunc loader, void* loaderData, const char* fileName, bool separatorIsSlash = false);
+    // rePlayer end
 
     /**
      * Load a sidtune into an existing object from a buffer.

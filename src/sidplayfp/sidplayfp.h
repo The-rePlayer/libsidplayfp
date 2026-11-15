@@ -97,7 +97,7 @@ public:
      * @param buffers pointer to the array of buffer pointers.
      * @since 2.14
      */
-    void buffers(short** buffers) const;
+    void buffers(SampleI16** buffers) const;
 
     /**
      * Run the emulation for selected number of cycles.
@@ -236,6 +236,8 @@ public:
      * @since 3.0
      */
     int getBufSize(unsigned int cycles);
+
+    void surround(bool enabled);
 };
 
 #endif // SIDPLAYFP_H

@@ -73,7 +73,9 @@ protected:
 public:  // ----------------------------------------------------------------
     virtual ~SidTuneBase() = default;
 
-    using LoaderFunc = void (*)(const char* fileName, buffer_t& bufferRef);
+    // rePlayer begin
+    using LoaderFunc = void (*)(const char* fileName, buffer_t& bufferRef, void* loaderData);
+    // rePlayer end
 
     /**
      * Load a sidtune from a file.
@@ -93,7 +95,7 @@ public:  // ----------------------------------------------------------------
      */
     static SidTuneBase* load(const char* fileName, const char **fileNameExt, bool separatorIsSlash)
     {
-        return load(nullptr, fileName, fileNameExt, separatorIsSlash);
+        return load(nullptr, nullptr, fileName, fileNameExt, separatorIsSlash); // rePlayer
     }
 
     /**
@@ -110,7 +112,9 @@ public:  // ----------------------------------------------------------------
      * @return the sid tune
      * @throw loadError
      */
-    static SidTuneBase* load(LoaderFunc loader, const char* fileName, const char **fileNameExt, bool separatorIsSlash);
+    // rePlayer begin
+    static SidTuneBase* load(LoaderFunc loader, void* loaderData, const char* fileName, const char **fileNameExt, bool separatorIsSlash);
+    // rePlayer end
 
     /**
      * Load a single-file sidtune from a memory buffer.
@@ -208,7 +212,9 @@ protected:
      * @param bufferRef
      * @throw loadError
      */
-    static void loadFile(const char* fileName, buffer_t& bufferRef);
+    // rePlayer begin
+    static void loadFile(const char* fileName, buffer_t& bufferRef, void* loaderData);
+    // rePlayer end
 
     /**
      * Convert 32-bit PSID-style speed word to internal tables.
@@ -268,10 +274,12 @@ private:  // ---------------------------------------------------------------
 #endif
     static SidTuneBase* getFromFiles(const char* fileName, const char **fileNameExtensions, bool separatorIsSlash)
     {
-        return getFromFiles(nullptr, fileName, fileNameExtensions, separatorIsSlash);
+        return getFromFiles(nullptr, nullptr, fileName, fileNameExtensions, separatorIsSlash); // rePlayer
     }
 
-    static SidTuneBase* getFromFiles(LoaderFunc loader, const char* fileName, const char **fileNameExtensions, bool separatorIsSlash);
+    // rePlayer begin
+    static SidTuneBase* getFromFiles(LoaderFunc loader, void* loaderData, const char* fileName, const char **fileNameExtensions, bool separatorIsSlash);
+    // rePlayer end
 
     /**
      * Try to retrieve single-file sidtune from specified buffer.

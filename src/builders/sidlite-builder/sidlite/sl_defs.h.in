@@ -33,4 +33,6 @@
 #  define UNLIKELY(x)    (x)
 #endif
 
+#include "../../residfp-builder/residfp/Sample.h"
+
 #endif // SIDLITE_DEFS_H

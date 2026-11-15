@@ -51,7 +51,7 @@ const SidConfig &sidplayfp::config() const
     return sidplayer.config();
 }
 
-void sidplayfp::buffers(short** buffers) const
+void sidplayfp::buffers(SampleI16** buffers) const
 {
     sidplayer.buffers(buffers);
 }
@@ -145,4 +145,9 @@ unsigned int sidplayfp::mix(short *buffer, unsigned int samples)
 int sidplayfp::getBufSize(unsigned int cycles)
 {
     return sidplayer.getBufSize(cycles);
+}
+
+void sidplayfp::surround(bool enabled)
+{
+    sidplayer.surround(enabled);
 }

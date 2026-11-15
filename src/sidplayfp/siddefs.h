@@ -60,4 +60,6 @@
 #  define SID_UNUSED
 #endif
 
+#include "../builders/residfp-builder/residfp/Sample.h"
+
 #endif /* SIDDEFS_H */

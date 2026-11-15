@@ -139,7 +139,7 @@ public:
 
     bool load(SidTune *tune);
 
-    void buffers(short** buffers) const;
+    void buffers(SampleI16** buffers) const;
 
     int play(unsigned int cycles);
 
@@ -170,6 +170,8 @@ public:
     bool reset();
 
     int getBufSize(unsigned int cycles);
+
+    void surround(bool enabled);
 };
 
 }
